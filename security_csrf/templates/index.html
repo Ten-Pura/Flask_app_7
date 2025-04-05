@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CSRF Protection Example</title>
+    </head>
+    <body>
+        <h1>Submit Form</h1>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            {{ form.name.label }} {{ form.name() }}<br>
+            {{ form.submit() }}
+        </form>
+    </body>
+</html>
