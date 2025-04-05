@@ -12,9 +12,9 @@ app.secret_key = 'secretkey'
 app.config["MAIL_SERVER"]   = "smtp.gmail.com"
 app.config["MAIL_PORT"]     = 587
 app.config["MAIL_USE_TLS"]  = True
-app.config["MAIL_USERNAME"] = os.environ.get('GMAIL_ID', None)
-app.config["MAIL_PASSWORD"] = os.environ.get('GMAIL_PASSWORD', None)
-app.config["MAIL_DEFAULT_SENDER"] = os.environ.get('GMAIL_ID', None)
+app.config["MAIL_USERNAME"] = "taichi1166"
+app.config["MAIL_PASSWORD"] = "Ofi33553"
+app.config["MAIL_DEFAULT_SENDER"] = "taichi1166"
 mail = Mail(app)
 
 #データベースの設定
@@ -45,7 +45,9 @@ def send_otp(email):
     otp_code = totp.now()
     msg = Message("ワンタイムパスワード（OTP）", recipients=[email])
     msg.body = f"あなたのワンタイムパスワードは{otp_code}です。60秒間有効です。"
-    mail.send(msg)
+    #mail.send(msg)
+    print(otp_code)
+    print(type(otp_code))
 
     return secret
 
@@ -69,12 +71,13 @@ def register():
 
         else:
             return "error"
+    return render_template("register.html")
 
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email    = request.form["email"]
-        password = request.form["password"]
+        email    = request.form.get("email")
+        password = request.form.get("password")
 
         #ユーザー認証
         user = User.query.filter_by(email=email).first()
@@ -95,13 +98,17 @@ def login():
 def verify():
     if request.method == "POST":
         otp_code = request.form['otp']
+        print(otp_code)
+        print(type(otp_code))
 
         #セッションからシークレットキーを取得
         secret = session.get("otp_secret")
 
         #保存しておいたシークレットキーを取得
         totp = pyotp.TOTP(secret)
+        print(totp.verify(otp_code))
         if totp.verify(otp_code):
+            print("ここは通っているの？")
             #ユーザーをログイン状態にする
             email = session.get("email")
             user  = User.query.filter_by(email=email).first()
