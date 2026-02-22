@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 import pyotp
 import os
 
@@ -63,7 +64,7 @@ def register():
                 return "すでに登録されているメールアドレスです。"
             
             #新しいユーザーをデータベースに追加
-            new_user = User(email=email, password=password)
+            new_user = User(email=email, password=generate_password_hash(password))
             db.session.add(new_user)
             db.session.commit()
 
@@ -81,7 +82,7 @@ def login():
 
         #ユーザー認証
         user = User.query.filter_by(email=email).first()
-        if user and user.password == password:
+        if user and check_password_hash(user.password, password):
             #ワンタイムパスワードを送信
             secret = send_otp(email)
 
